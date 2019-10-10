@@ -1,6 +1,6 @@
 {% extends "bootstrap/base.html" %}
 
-{% block title %}Flasky{% endblock %}
+{% block title %}HealthHub{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -18,7 +18,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">Flasky</a>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">HealthHub</a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
@@ -29,13 +29,11 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Account <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('auth.change_password') }}">Change Password</a></li>
-                        <li><a href="{{ url_for('auth.change_email_request') }}">Change Email</a></li>
                         <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
                     </ul>
                 </li>
                 {% else %}
-                <li><a href="{{ url_for('auth.customer_login') }}">Log In</a></li>
+                <li><a href="{{ url_for('auth.customerlogin') }}">Log In</a></li>
                 {% endif %}
             </ul>
         </div>

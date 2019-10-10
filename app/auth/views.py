@@ -4,9 +4,10 @@ from flask_login import login_user, login_required, logout_user, current_user
 from ..models import Customer
 from .forms import LoginForm, RegistrationForm
 from ..email import send_email
+from .. import db
 
-@auth.route('/customer_login')
-def customer_login():
+@auth.route('/customerlogin', methods = ['GET','POST'])
+def customerlogin():
     form = LoginForm()
     if form.validate_on_submit():
         cust = Customer.query.filter_by(email=form.email.data).first()
@@ -33,18 +34,20 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         cust = Customer(email = form.email.data,
+                        name = form.name.data,
                         password = form.password.data,
                         passport_num = form.passport_num.data,
                         passport_expir = form.passport_expir.data,
                         passport_country = form.passport_country.data,
-                        date_of_birth = form.date_of_birth.data)
+                        date_of_birth = form.date_of_birth.data
+                        )
         db.session.add(cust)
         db.session.commit()
         token = cust.generate_confirmation_token()
         send_email(cust.email, 'Confirm Your Account',
                     'auth/email/confirm', user=cust, token=token)
         flash('A confirmation email has been sent to you by email.')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('auth.customerlogin'))
     return render_template('auth/register.html', form = form)
 
 @auth.route('/confirm/<token>')

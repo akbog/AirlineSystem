@@ -1,7 +1,7 @@
-Dear {{ cust.name }},
-Welcome to our Airline System!
+Dear {{ user.name }},
+Welcome to our Health Hub!
 To confirm your account please click on the following link:
 {{ url_for('auth.confirm', token=token, _external=True) }}
 Sincerely,
-The Airline Team
+The Health Hub Team
 Note: replies to this email address are not monitored.

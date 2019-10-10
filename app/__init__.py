@@ -13,7 +13,7 @@ mail = Mail()
 
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
-login_manager.login_view = 'auth.customer_login'
+login_manager.login_view = 'auth.customerlogin'
 
 def create_app(config_name):
     app = Flask(__name__)

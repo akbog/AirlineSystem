@@ -6,13 +6,14 @@ class Config:
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    MAIL_SERVER = 'smtp.googlemail.com'
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    SYSTEM_MAIL_SUBJECT_PREFIX = '[FLIGHT]'
-    SYSTEM_MAIL_SENDER = 'flightsystemlogs@gmail.com'
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') #os.environ.get('MAIL_PASSWORD')
+    SYSTEM_MAIL_SUBJECT_PREFIX = '[HEALTHHub]'
+    SYSTEM_MAIL_SENDER = 'alexkbog@gmail.com'
     SYSTEM_ADMIN = os.environ.get('SYSTEM_ADMIN')
 
 

@@ -1,18 +1,19 @@
 from flask_wtf import Form
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, DateField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField #,DateField
 from wtforms.validators import Required, Email, Length, Regexp, EqualTo
 from wtforms import ValidationError
+from wtforms.fields.html5 import DateField
 from wtforms_components import DateRange
 from datetime import datetime, date
 from ..models import Customer
 
 class RegistrationForm(Form):
     email = StringField('Email', validators=[Required(), Length(1, 64), Email()])
-    name = StringField('Name', validators = [Required(), Length(1, 64), Regexp('^[A-Za-z]*$', 0, 'Name must have only letters')])
-    passport_num = StringField('Passport Number', validators = [Required(), Length(1, 64)])
-    passport_expir = DateField('Expiration Date', validators = [Required()])
-    passport_country = SelectField('Country', choices = []) #Later need to set the Country
-    date_of_birth = DateField('Date of Birth', validators = [Required(), DateRange(date(1900,1,1), datetime.today())])
+    name = StringField('Name', validators = [Required(), Length(1, 64), Regexp('^[A-Za-z\s]*$', 0, 'Name must have only letters')])
+    passport_num = StringField('Social Security Number', validators = [Required(), Length(1, 64)])
+    passport_expir = DateField('Last Checkup', validators = [Required()])
+    passport_country = SelectField('State', choices = [('state','NY'),('state','CA'),('other','OTHER')]) #Later need to set the Country
+    date_of_birth = DateField('Date of Birth', validators = [Required(), DateRange(date(1900,1,1), date.today())])
     password = PasswordField('Password', validators = [Required(), Length(8,64), EqualTo('password2', message = 'Passwords must match.')])
     password2 = PasswordField('Confirm password', validators = [Required()])
     submit = SubmitField('Register')
