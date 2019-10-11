@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - Login{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+  <h1>Partner Login</h1>
+</div>
+<div class="col-md-4">
+  {{ wtf.quick_form(form) }}
+  <br>
+  <p>
+    Not a Partner?
+      <a href="{{ url_for('auth.agentlogin') }}">
+        <br> Login as an Agent.
+      </a>
+      <a href="{{ url_for('auth.customerlogin') }}">
+        <br> Login as a Customer.
+      </a>
+  </p>
+</div>
+{% endblock %}

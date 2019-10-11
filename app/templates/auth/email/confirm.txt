@@ -1,7 +1,7 @@
-Dear {{ user.name }},
-Welcome to our Health Hub!
+Dear {{ user.first_name }},
+Welcome to Tripmetic!
 To confirm your account please click on the following link:
 {{ url_for('auth.confirm', token=token, _external=True) }}
 Sincerely,
-The Health Hub Team
+The Tripmetic Team
 Note: replies to this email address are not monitored.
