@@ -1,14 +1,38 @@
 {% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}Tripmetic{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
-    <h1>Hello,
-      {% if current_user.is_authenticated %}
-        You're Logged In!
-      {% else %}
-        Please Log In!
-      {% endif %}!</h1>
+    <h1>
+      Welcome to tripmetic, book a flight today!
+    </h1>
+</div>
+<div class="col-md-6">
+  {{ wtf.quick_form(explore_form) }}
+</div>
+<div class = "col-md-2">
+    or
+</div>
+<div class="col-md-4">
+  {% if current_user.is_authenticated %}
+    Empty Text
+  {% else %}
+    Login
+    <br>
+    {{ wtf.quick_form(login_form) }}
+    <br>
+    <p>
+      Not an Agent?
+        <a href="{{ url_for('auth.customerlogin') }}">
+          <br> Login as a Customer.
+        </a>
+        <a href="{{ url_for('auth.partnerlogin') }}">
+          <br> Login as a Partner.
+        </a>
+    </p>
+  {% endif %}
+  <br>
 </div>
 {% endblock %}

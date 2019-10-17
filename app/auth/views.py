@@ -60,7 +60,6 @@ def logout():
 def register_customer():
     form = CustomerRegistrationForm()
     airports = db.session.query(Airport.name).all()
-    print(airports)
     form.passport_country.choices = [('country',i) for (i,) in airports]
     if form.validate_on_submit():
         user = User(password = form.password.data)

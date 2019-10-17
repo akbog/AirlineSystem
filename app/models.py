@@ -149,32 +149,44 @@ class Permission:
 
 class Airline(db.Model):
     name = db.Column(db.String(64), primary_key = True)
-    airplanes = db.relationship('Airplane', backref='airline', lazy = True)
-    flights = db.relationship('Flight', backref = 'airline', lazy = True)
+    airplanes = db.relationship('Airline_stock', backref='airline', lazy = True)
     tickets = db.relationship('Ticket', backref = 'airline', lazy = True)
     employees = db.relationship('Airline_staff', backref = 'employee_of', lazy = True)
 
 class Airplane(db.Model):
-    id_num = db.Column(db.String(64), primary_key = True)
+    id_num = db.Column(db.String(3), primary_key = True)
+    aircraft_name = db.Column(db.String(128), nullable = False, unique = True)
     seat_capacity = db.Column(db.Integer, nullable = False)
-    airline_name = db.Column(db.String(64), db.ForeignKey('airline.name'), primary_key = True)
-    flights = db.relationship('Flight', backref = 'airplane', lazy = True)
+    airline_name = db.relationship('Airline_stock', backref = 'airplane')
+
+class Airline_stock(db.Model):
+    airline_name = db.Column(db.String(64), db.ForeignKey('airline.name'), primary_key = True, unique = False)
+    model = db.Column(db.String(3), db.ForeignKey('airplane.id_num'), primary_key = True, unique = False)
+    unique_id = db.Column(db.String(64), primary_key = True, unique = False)
+    flights_name = db.relationship('Flight', foreign_keys = 'Flight.airline_name', backref = 'airline_stock', lazy = True)
+    flights_model = db.relationship('Flight', foreign_keys = 'Flight.airplane_model', backref = 'airline_stock', lazy = True)
+    flights_unique_id = db.relationship('Flight', foreign_keys = 'Flight.airplane_id', backref = 'airline_stock', lazy = True)
 
 class Airport(db.Model):
     name = db.Column(db.String(64), primary_key = True)
+    code = db.Column(db.String(3), unique = True)
     city = db.Column(db.String(64), unique = False)
+    country = db.Column(db.String(64), unique = False)
+    latitude = db.Column(db.Float())
+    longitude = db.Column(db.Float())
     flight_arrival = db.relationship('Flight',foreign_keys = 'Flight.arrival', backref = 'arrival_port', lazy = True)
     flight_departure = db.relationship('Flight',foreign_keys = 'Flight.departure', backref = 'departure_port', lazy = True)
 
 class Flight(db.Model):
-    flight_num = db.Column(db.String(64), primary_key = True)
+    flight_num = db.Column(db.String(64), primary_key = True, unique = False)
     price = db.Column(db.Float(), nullable = False)
-    airline_name = db.Column(db.String(64), db.ForeignKey('airline.name'), primary_key = True)
-    airplane_id = db.Column(db.String(64), db.ForeignKey('airplane.id_num'), nullable = False)
+    airline_name = db.Column(db.String(64), db.ForeignKey('airline_stock.airline_name'), primary_key = True, unique = False)
+    airplane_model = db.Column(db.String(64), db.ForeignKey('airline_stock.model'), unique = False, nullable = False)
+    airplane_id = db.Column(db.String(64), db.ForeignKey('airline_stock.unique_id'), unique = False, nullable = False)
     arrival = db.Column(db.String(64), db.ForeignKey('airport.name'), nullable = False)
     departure = db.Column(db.String(64), db.ForeignKey('airport.name'), nullable = False)
-    arrival_time = db.Column(db.DateTime, nullable = False)
-    departure_time = db.Column(db.DateTime, nullable = False)
+    arrival_date = db.Column(db.DateTime, nullable = False)
+    departure_date = db.Column(db.DateTime, nullable = False)
     tickets = db.relationship('Ticket', backref = 'flight', lazy = True)
 
 class Address(db.Model):
