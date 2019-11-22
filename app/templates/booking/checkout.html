@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - departure{% endblock %}
+{% block head %}
+{{ super() }}
+<meta charset='utf-8'>
+<title>Book</title>
+<style type="text/css">
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+{% block page_content %}
+<body>
+  <table class = "table">
+    <thead>
+      <tr>
+        <th scope="col">Airline</th>
+        <th scope="col">Departure Time</th>
+        <th scope="col">Arrival Time</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <th colspan = "3">Departure Flight Info: </th>
+        </tr>
+        <tr>
+          <td>{{dep_flight.airline_name}}</td>
+          <td>{{dep_flight.departure_date}}</td>
+          <td>{{dep_flight.arrival_date}}</td>
+        </tr>
+        <tr>
+          <th colspan = "3">Return Flight Info: </th>
+        </tr>
+        <tr>
+          <td>{{ret_flight.airline_name}}</td>
+          <td>{{ret_flight.departure_date}}</td>
+          <td>{{ret_flight.arrival_date}}</td>
+        </tr>
+        <tr>
+          <th colspan = "2">Total Cost:</th>
+          <td>{{ tot_price }}</td>
+        </tr>
+    <tbody>
+  </table>
+  <div class="col-md-4">
+    {% if current_user.can(permissions.BOOK_FLIGHTS_AS_CUST) %}
+      {{ wtf.quick_form(cust_form) }}
+    {% elif current_user.can(permissions.BOOK_FLIGHTS_AS_AGENT) %}
+      {{ wtf.quick_form(book_form)}}
+    {% endif %}
+  </div>
+</body>
+
+
+{% endblock %}

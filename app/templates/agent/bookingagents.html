@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - booking agent{% endblock %}
+{% block head %}
+{{ super() }}
+<meta charset='utf-8'>
+<title>Book</title>
+<style type="text/css">
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+{% block page_content %}
+
+<div class = "container">
+  <div class = "col-md-6">
+    <table class = "table">
+      <thead>
+        <h4> Top 5 by Tickets Sold (Past Month)</h4>
+        <tr>
+          <th scope="col">Rank</th>
+          <th scope="col">Booking Agent Email</th>
+          <th scope="col">Booking Agent ID</th>
+          <th scope="col">Tickets Sold</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in top_tickets_month %}
+          <tr>
+            <td>{{loop.index0 + 1}}</td>
+            <td>{{top_tickets_month[loop.index0][0]}}</td>
+            <td>{{top_tickets_month[loop.index0][1]}}</td>
+            <td>{{top_tickets_month[loop.index0][2]}}</td>
+          </tr>
+        {% endfor %}
+      <tbody>
+    </table>
+    <table class = "table">
+      <thead>
+        <h4> Top 5 by Commission Earned (Past Month)</h4>
+        <tr>
+          <th scope="col">Rank</th>
+          <th scope="col">Booking Agent Email</th>
+          <th scope="col">Booking Agent ID</th>
+          <th scope="col">Commission Earned</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in top_commission_month %}
+          <tr>
+            <td>{{loop.index0 + 1}}</td>
+            <td>{{top_commission_month[loop.index0][0]}}</td>
+            <td>{{top_commission_month[loop.index0][1]}}</td>
+            <td>{{"${0:.2f}".format(top_commission_month[loop.index0][2])}}</td>
+          </tr>
+        {% endfor %}
+      <tbody>
+    </table>
+  </div>
+  <div class = "col-md-6">
+    <table class = "table">
+      <thead>
+        <h4> Top 5 by Tickets Sold (Past Year)</h4>
+        <tr>
+          <th scope="col">Rank</th>
+          <th scope="col">Booking Agent Email</th>
+          <th scope="col">Booking Agent ID</th>
+          <th scope="col">Tickets Sold</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in top_tickets_year %}
+          <tr>
+            <td>{{loop.index0 + 1}}</td>
+            <td>{{top_tickets_year[loop.index0][0]}}</td>
+            <td>{{top_tickets_year[loop.index0][1]}}</td>
+            <td>{{top_tickets_year[loop.index0][2]}}</td>
+          </tr>
+        {% endfor %}
+      <tbody>
+    </table>
+    <table class = "table">
+      <thead>
+        <h4> Top 5 by Commission Earned (Past Year)</h4>
+        <tr>
+          <th scope="col">Rank</th>
+          <th scope="col">Booking Agent Email</th>
+          <th scope="col">Booking Agent ID</th>
+          <th scope="col">Commission Earned</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in top_commission_month %}
+          <tr>
+            <td>{{loop.index0 + 1}}</td>
+            <td>{{top_commission_year[loop.index0][0]}}</td>
+            <td>{{top_commission_year[loop.index0][1]}}</td>
+            <td>{{"${0:.2f}".format(top_commission_year[loop.index0][2])}}</td>
+          </tr>
+        {% endfor %}
+      <tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

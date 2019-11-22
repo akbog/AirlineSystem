@@ -9,11 +9,10 @@ from ..models import Customer, User, Airport
 from .. import db
 
 class ExploreForm(FlaskForm):
-    departure_airport = SelectField('Depart from:', validators = [Required()])
-    arrival_airport = SelectField('Arrive at:', validators = [Required()])
-    departure_date = DateField('Depart Date', validators = [Required(), DateRange(date.today())])
+    departure_airport = SelectField('Departure Airport:', validators = [Required()])
+    arrival_airport = SelectField('Arrival Airport:', validators = [Required()])
+    departure_date = DateField('Departure Date', validators = [Required(), DateRange(date.today())])
     return_date = DateField('Return Date (Optional)', validators = [DateRange(date.today())])
-    group_size = IntegerField('Group Size', validators = [Required(), NumberRange(0,10)])
     submit = SubmitField('Explore')
 
     def validate_return_date(self, field):
@@ -21,7 +20,5 @@ class ExploreForm(FlaskForm):
             raise ValidationError('Please input a valid date range')
 
     def validate_arrival_airport(self, field):
-        print(field.data)
-        print(self.departure_airport.data)
         if field.data == self.departure_airport.data:
             raise ValidationError('Airports must be different.')

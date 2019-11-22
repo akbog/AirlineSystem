@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - departure{% endblock %}
+{% block head %}
+{{ super() }}
+<meta charset='utf-8'>
+<title>Book</title>
+<style type="text/css">
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+{% block page_content %}
+<div class = "container">
+  <div class = "row">
+    <div class = "col-md-6">
+      {% if current_user.can(permissions.BOOK_FLIGHTS_AS_CUST) %}
+        <h3>Search My Flights</h3>
+      {% elif current_user.can(permissions.BOOK_FLIGHTS_AS_AGENT) %}
+        <h3>Search Customer Flights</h3>
+      {% endif %}
+      {{wtf.quick_form(form)}}
+    </div>
+  </div>
+</div>
+<div class = "container">
+  <div class = "col-md-12">
+    <div class = "row">
+      <br></br>
+      <table class = "table">
+        <thead>
+          <h4> Upcoming Flights </h4>
+          <tr>
+            <th scope="col">Airline</th>
+            <th scope="col">Flight #</th>
+            <th scope="col">Departure Time</th>
+            <th scope="col">Origin Airport</th>
+            <th scope="col">Destination Airport</th>
+            <th scope="col">Status</th>
+            <th scope="col">Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for flights in upcoming %}
+            <tr>
+              <td>{{flights.airline_name}}</td>
+              <td>{{flights.flight_num}}</td>
+              <td>{{flights.departure_date}}</td>
+              <td>{{flights.departure}}</td>
+              <td>{{flights.arrival}}</td>
+              <td>{{flights.status}}</td>
+              <td>{{quantities[flights.flight_num][1]}}x</td>
+            </tr>
+          {% endfor %}
+        <tbody>
+      </table>
+    </div>
+  </div>
+  <div class = "col-md-12">
+    <div class = "row">
+      <table class = "table">
+        <thead>
+          <h4> Historical Flights </h4>
+          <tr>
+            <th scope="col">Airline</th>
+            <th scope="col">Flight #</th>
+            <th scope="col">Departure Time</th>
+            <th scope="col">Origin Airport</th>
+            <th scope="col">Destination Airport</th>
+            <th scope="col">Status</th>
+            <th scope="col">Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for flights in historical %}
+            <tr>
+              <td>{{flights.airline_name}}</td>
+              <td>{{flights.flight_num}}</td>
+              <td>{{flights.departure_date}}</td>
+              <td>{{flights.departure}}</td>
+              <td>{{flights.arrival}}</td>
+              <td>{{flights.status}}</td>
+              <td>{{quantities[flights.flight_num][1]}}x</td>
+            </tr>
+          {% endfor %}
+        <tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

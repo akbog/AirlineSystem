@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - departure{% endblock %}
+{% block head %}
+{{ super() }}
+<meta charset='utf-8'>
+<title>Book</title>
+<style type="text/css">
+
+  #chart {
+    height: 40vh;
+  }
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+<script src="https://momentjs.com/downloads/moment.js"></script>
+{% endblock %}
+{% block page_content %}
+
+<div class = "container">
+  <div class = "row">
+    <div class = "col-md-6">
+      <h3>Track My Spending</h3>
+      {{wtf.quick_form(form)}}
+    </div>
+  </div>
+  <div class = "row">
+    <div class = "col-md-6">
+      <br></br>
+      <h4> Total Spend in Range: {{total_spend}}</h4>
+    </div>
+  </div>
+  <div class = "row">
+    <div class = "col-md-8" id = "chart">
+      <h4> Monthly Spend in Range <h4>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  var padding = 50
+  var data = []
+
+  var options = {year: 'numeric', month: 'long'}
+
+  {% for ticket in months %}
+      var temp_data = {}
+      temp_data["Month"] =  moment("{{ticket}}")
+      temp_data['Total'] = parseFloat("{{months[ticket]}}")
+      data.push(temp_data)
+  {% endfor %}
+
+  var width = document.getElementById("chart").clientWidth
+  var height = document.getElementById("chart").clientHeight
+
+  console.log(width, height)
+
+  var month_totals = data.map(function(data){
+    return data.Total
+  })
+
+// .toLocaleDateString(options)
+  data.sort((a,b) => a.Month - b.Month)
+
+  // .toLocaleDateString(options)
+
+  data.forEach(function(d){
+    d.Month = d.Month.format("MMM YYYY")
+  })
+
+  var max_value = Math.round(Math.max(...month_totals)/1000)*1000
+
+  var xScale = d3.scaleBand()
+                  .domain(data.map(function(d) {return d.Month}))
+                  .padding(0.1)
+                  .range([padding, width - padding])
+
+
+  var yScale = d3.scaleLinear()
+                  .domain([0, max_value])
+                  .range([height - padding, padding])
+
+  var svg = d3.select("#chart")
+              .append("svg")
+              .attr("width", width)
+              .attr("height", height)
+              .append("g")
+              .attr("transform",
+                  "translate(" + padding + "," +0 + ")");
+
+  svg.selectAll('.bar')
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) {
+        return xScale(d.Month)
+      })
+      .attr("width", xScale.bandwidth())
+      .attr("y", function(d) {
+        return yScale(d.Total)
+      })
+      .attr("height", function(d) {
+        return (height - padding) - yScale(d.Total)
+      })
+      .style("fill", "rgb(100,100,300)")
+
+  svg.append("g")
+      .attr("transform", "translate(0," + (height - padding) + ")")
+      .call(d3.axisBottom(xScale))
+
+    svg.append("g")
+        .call(d3.axisLeft(yScale))
+
+  console.log(width)
+//Next will be writing the scale
+
+  console.log(data)
+
+</script>
+{% endblock %}

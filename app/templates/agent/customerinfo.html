@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - departure{% endblock %}
+{% block head %}
+{{ super() }}
+<meta charset='utf-8'>
+<title>Book</title>
+<style type="text/css">
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+
+{% block page_content %}
+<div class = "container">
+  <div class = "row">
+    <div class = "col-md-6">
+      <h3>Search Customers</h3>
+      {{wtf.quick_form(form)}}
+    </div>
+  </div>
+</div>
+<div class = "container">
+  <div class = "col-md-12">
+    <div class = "row">
+      <br></br>
+      <table class = "table">
+        <thead>
+          <h4> Top Customers (Ranked) </h4>
+          <tr>
+            <th scope="col">Rank</th>
+            <th scope="col">Email</th>
+            <th scope="col">Name</th>
+            <th scope="col">Citizenship</th>
+            <th scope="col">Total Flights Booked</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in customers %}
+            <tr class="clickable-row" data-href="{{ url_for('agent.customerflightinfo', cust_id = customers[loop.index0][0]) }}">
+              <td>{{loop.index0 + 1}}</td>
+              <td>{{customers[loop.index0][0]}}</td>
+              <td>{{customers[loop.index0][2] + ", " + customers[loop.index0][1]}}</td>
+              <td>{{customers[loop.index0][3]}}</td>
+              <td>{{customers[loop.index0][4]}}</td>
+            </tr>
+          {% endfor %}
+        <tbody>
+      </table>
+    </div>
+  </div>
+
+<script type="text/javascript">
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+      window.location = $(this).data("href")
+    })
+  })
+</script>
+{% endblock %}

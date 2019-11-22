@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - departure{% endblock %}
+{% block head %}
+{{ super() }}
+<meta charset='utf-8'>
+<title>Book</title>
+<style type="text/css">
+
+  #chart {
+    height: 40vh;
+  }
+
+  #piechart-1, piechart-2 {
+    height: 40vh;
+  }
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+<script src="https://momentjs.com/downloads/moment.js"></script>
+{% endblock %}
+{% block page_content %}
+
+<div class = "container">
+  <div class = "row">
+    <div class = "col-md-6">
+      <h3>{{line}} Reports</h3>
+      {{wtf.quick_form(form)}}
+      <h4> Tickets Sold in Range: {{total_tickets}}</h4>
+    </div>
+  </div>
+  <div class = "row">
+    <div class = "col-md-6" id = "chart">
+      <h4> Monthly Tickets Sold in Range </h4>
+    </div>
+    <div class = "col-md-2">
+    </div>
+    <div class = "col-md-4" id = "piechart-1">
+      <h4> Revenues in Range <h4>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  var padding = 50
+  var data = []
+
+  var options = {year: 'numeric', month: 'long'}
+
+  {% for ticket in months %}
+      var temp_data = {}
+      temp_data["Month"] =  moment("{{ticket}}")
+      temp_data['Total'] = parseFloat("{{months[ticket]}}")
+      data.push(temp_data)
+  {% endfor %}
+
+  var width = document.getElementById("chart").clientWidth
+  var height = document.getElementById("chart").clientHeight
+
+  console.log(width, height)
+
+  var month_totals = data.map(function(data){
+    return data.Total
+  })
+
+// .toLocaleDateString(options)
+  data.sort((a,b) => a.Month - b.Month)
+
+  // .toLocaleDateString(options)
+
+  data.forEach(function(d){
+    d.Month = d.Month.format("MMM YYYY")
+  })
+
+  var max_value = Math.round(Math.max(...month_totals))
+
+  var xScale = d3.scaleBand()
+                  .domain(data.map(function(d) {return d.Month}))
+                  .padding(0.1)
+                  .range([padding, width - padding])
+
+
+  var yScale = d3.scaleLinear()
+                  .domain([0, max_value])
+                  .range([height - padding, padding])
+
+  var svg = d3.select("#chart")
+              .append("svg")
+              .attr("width", width)
+              .attr("height", height)
+              .append("g")
+              .attr("transform",
+                  "translate(" + padding + "," +0 + ")");
+
+  svg.selectAll('.bar')
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) {
+        return xScale(d.Month)
+      })
+      .attr("width", xScale.bandwidth())
+      .attr("y", function(d) {
+        return yScale(d.Total)
+      })
+      .attr("height", function(d) {
+        return (height - padding) - yScale(d.Total)
+      })
+      .style("fill", "rgb(100,100,300)")
+
+  svg.append("g")
+      .attr("transform", "translate(0," + (height - padding) + ")")
+      .call(d3.axisBottom(xScale))
+
+    svg.append("g")
+        .call(d3.axisLeft(yScale))
+
+  console.log(width)
+//Next will be writing the scale
+
+  console.log(data)
+
+  // set the dimensions and margins of the graph
+
+
+  var pie_width = document.getElementById("piechart-1").clientWidth
+  var pie_height = document.getElementById("piechart-1").clientHeight
+  var margin = 50
+
+  var radius = Math.min(width, height) / 2 - margin
+
+  // append the svg object to the div called 'my_dataviz'
+  var pie_svg = d3.select("#piechart-1")
+    .append("svg")
+      .attr("width", pie_width)
+      .attr("height", pie_height)
+    .append("g")
+      .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")");
+
+  // Create dummy data
+  var data = {"Direct Revenue" : {{direct_revenue}}, "Agent Revenue": {{agent_revenue}}}
+
+  // set the color scale
+  var color = d3.scaleOrdinal()
+    .domain(data)
+    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56"])
+
+  var pie = d3.pie()
+    .value(function(d) {return d.value; })
+
+  var data_ready = pie(d3.entries(data))
+
+  console.log(data_ready)
+
+  // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+  pie_svg
+    .selectAll('whatever')
+    .data(data_ready)
+    .enter()
+    .append('path')
+    .attr('d', d3.arc()
+      .innerRadius(50)         // This is the size of the donut hole
+      .outerRadius(radius)
+    )
+    .attr('fill', function(d){ return(color(d.data.key)) })
+    .attr("stroke", "black")
+    .style("stroke-width", "2px")
+    .style("opacity", 0.7)
+
+  var legend = d3.select("#piechart-1")
+      .append("svg")
+      .attr("class", "legend")
+      .selectAll("g")
+      .data(data_ready)
+      .enter().append("g")
+      .attr("transform", function(d, i) { return "translate(20," + i * 20 + ")"; });
+
+  legend.append("rect")
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", function(d, i) {
+  return color(d.data.key);
+});
+
+  legend.append("text")
+      .attr("x", 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .text(function(d) { return d.data.key; });
+
+</script>
+{% endblock %}

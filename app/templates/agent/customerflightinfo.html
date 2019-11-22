@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - departure{% endblock %}
+{% block head %}
+{{ super() }}
+<meta charset='utf-8'>
+<title>Book</title>
+<style type="text/css">
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+{% block page_content %}
+<div class = "container">
+  <div class = "row">
+    <div class = "col-md-10">
+      <h3>Flights for {{customer.last_name}}, {{customer.first_name}}</h3>
+    </div>
+    <div class = "col-md-2 return">
+      <form method = "GET" name = "return" action = "{{url_for('agent.customers')}}">
+        <input type = "submit" name = "return_button" value = "return"></input>
+      </form>
+    </div>
+  </div>
+  <div class = "row">
+    <div class = "col-md-12">
+      <table class = "table">
+        <thead>
+          <tr>
+            <th scope="col">Airline</th>
+            <th scope="col">Flight #</th>
+            <th scope="col">Departure Time</th>
+            <th scope="col">Origin</th>
+            <th scope="col">Destination</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for flight in flights %}
+            <tr>
+              <td>{{flight.airline_name}}</td>
+              <td>{{flight.flight_num}}</td>
+              <td>{{flight.flight.departure_date}}</td>
+              <td>{{flight.flight.departure}}</td>
+              <td>{{flight.flight.arrival}}</td>
+            </tr>
+          {% endfor %}
+        <tbody>
+      </table>
+    </div>
+  </div>
+
+
+{% endblock %}

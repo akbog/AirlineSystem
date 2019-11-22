@@ -13,9 +13,9 @@ class User(UserMixin, db.Model):
     user_id = db.Column(db.Integer, primary_key = True)
     password_hash = db.Column(db.String(128))
     confirmed = db.Column(db.Boolean, default=False)
-    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     last_seen = db.Column(db.DateTime(), default = datetime.utcnow)
     member_since = db.Column(db.DateTime(), default = datetime.utcnow)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     customers = db.relationship('Customer', backref = 'user', lazy = True)
     agents = db.relationship('Booking_agent', backref = 'user', lazy = True)
     staff = db.relationship('Airline_staff', backref = 'user', lazy = True)
@@ -27,9 +27,9 @@ class User(UserMixin, db.Model):
         super(User, self).__init__(**kwargs)
         if self.role is None:
             if self.user_id == current_app.config['FLASKY_ADMIN']:
-                self.role_id = Role.query.filter_by(permissions=0xff).first()
-            if self.role_id is None:
-                self.role = Role.query.filter_by(default = True).first()
+                self.role = Role.query.filter_by(permissions=0xff).first()
+            if self.role is None:
+                self.role = Role.query.filter_by(default=True).first()
 
     @property
     def password(self):
@@ -61,16 +61,16 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User %r>' % self.user_id
 
-    def can(self, permissions):
-        return self.role is not None and \
-                (self.role.permissions & permissions) == permissions
-
-    def is_administrator(self):
-        return self.can(Permission.ADMINISTER)
-
     def ping(self):
         self.last_seen = datetime.utcnow()
         db.session.add(self)
+
+    def can(self, permissions):
+        return self.role is not None and \
+            (self.role.permissions & permissions) == permissions
+
+    def is_administrator(self):
+        return self.can(Permission.ADMINISTER)
 
 class AnonymousUser(AnonymousUserMixin):
     def can(self, permissions):
@@ -78,6 +78,37 @@ class AnonymousUser(AnonymousUserMixin):
 
     def is_administrator(self):
         return False
+
+login_manager.anonymouse_user = AnonymousUser
+
+class Permission:
+    BOOK_FLIGHTS_AS_CUST = 0x01
+    BOOK_FLIGHTS_AS_AGENT = 0x02
+    MANAGE_AIRLINES = 0x04
+    ADMINISTER = 0x80
+
+class Role(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique = True)
+    default = db.Column(db.Boolean, default = False, index = True)
+    permissions = db.Column(db.Integer)
+    users = db.relationship('User', backref = 'role', lazy = 'dynamic')
+
+    @staticmethod
+    def insert_roles():
+        roles = {
+            'Customer':(Permission.BOOK_FLIGHTS_AS_CUST, True),
+            'BOOKING_AGENT' : (Permission.BOOK_FLIGHTS_AS_AGENT, False),
+            'Airline_Staff' : (Permission.MANAGE_AIRLINES, False)
+        }
+        for r in roles:
+            role = Role.query.filter_by(name=r).first()
+            if role is None:
+                role = Role(name=r)
+            role.permissions = roles[r][0]
+            role.default = roles[r][1]
+            db.session.add(role)
+        db.session.commit()
 
 class Customer(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable = False)
@@ -100,7 +131,6 @@ class Booking_agent(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable = False)
     booking_agent_id = db.Column(db.String(64),primary_key = True)
     email = db.Column(db.String(64), nullable = False, unique = True)
-    password = db.Column(db.String(64), nullable = False)
     tickets_sold = db.relationship('Ticket', backref = 'booking_agent', lazy = True)
 
 class Airline_staff(db.Model):
@@ -111,46 +141,9 @@ class Airline_staff(db.Model):
     date_of_birth = db.Column(db.DateTime, nullable = False)
     airline = db.Column(db.String(64), db.ForeignKey('airline.name'), nullable = False)
 
-
-class Role(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(64), unique = True)
-    default = db.Column(db.Boolean, default=False, index=True)
-    permissions = db.Column(db.Integer)
-    users = db.relationship('User', backref = 'role', lazy = 'dynamic')
-
-    @staticmethod
-    def insert_roles():
-        roles = {
-            'Customer' : (Permission.BOOK_FLIGHTS, True),
-            'Booking_agent' : (Permission.BOOK_FLIGHTS |
-                                Permission.BOOK_FLIGHTS_FOR_OTHERS,
-                                False),
-            'Airline_staff' : (Permission.BOOK_FLIGHTS |
-                                Permission.BOOK_FLIGHTS_FOR_OTHERS |
-                                Permission.UPDATE_FLIGHTS,
-                                False),
-            'Administrator' : (0xff, False)
-        }
-        for r in roles:
-            role = Role.query.filter_by(name = r).first()
-            if role is None:
-                role = Role(name=r)
-            role.permissions = roles[r][0]
-            role.default = roles[r][1]
-            db.session.add(role)
-        db.session.commit()
-
-class Permission:
-    BOOK_FLIGHTS = 0x01
-    BOOK_FLIGHTS_FOR_OTHERS = 0x02
-    UPDATE_FLIGHTS = 0x03
-
-
 class Airline(db.Model):
     name = db.Column(db.String(64), primary_key = True)
     airplanes = db.relationship('Airline_stock', backref='airline', lazy = True)
-    tickets = db.relationship('Ticket', backref = 'airline', lazy = True)
     employees = db.relationship('Airline_staff', backref = 'employee_of', lazy = True)
 
 class Airplane(db.Model):
@@ -163,9 +156,6 @@ class Airline_stock(db.Model):
     airline_name = db.Column(db.String(64), db.ForeignKey('airline.name'), primary_key = True, unique = False)
     model = db.Column(db.String(3), db.ForeignKey('airplane.id_num'), primary_key = True, unique = False)
     unique_id = db.Column(db.String(64), primary_key = True, unique = False)
-    flights_name = db.relationship('Flight', foreign_keys = 'Flight.airline_name', backref = 'airline_stock', lazy = True)
-    flights_model = db.relationship('Flight', foreign_keys = 'Flight.airplane_model', backref = 'airline_stock', lazy = True)
-    flights_unique_id = db.relationship('Flight', foreign_keys = 'Flight.airplane_id', backref = 'airline_stock', lazy = True)
 
 class Airport(db.Model):
     name = db.Column(db.String(64), primary_key = True)
@@ -180,14 +170,22 @@ class Airport(db.Model):
 class Flight(db.Model):
     flight_num = db.Column(db.String(64), primary_key = True, unique = False)
     price = db.Column(db.Float(), nullable = False)
-    airline_name = db.Column(db.String(64), db.ForeignKey('airline_stock.airline_name'), primary_key = True, unique = False)
-    airplane_model = db.Column(db.String(64), db.ForeignKey('airline_stock.model'), unique = False, nullable = False)
-    airplane_id = db.Column(db.String(64), db.ForeignKey('airline_stock.unique_id'), unique = False, nullable = False)
+    airline_name = db.Column(db.String(64), primary_key = True, unique = False)
+    airplane_model = db.Column(db.String(3), unique = False, nullable = False)
+    airplane_id = db.Column(db.String(64), unique = False, nullable = False)
     arrival = db.Column(db.String(64), db.ForeignKey('airport.name'), nullable = False)
     departure = db.Column(db.String(64), db.ForeignKey('airport.name'), nullable = False)
     arrival_date = db.Column(db.DateTime, nullable = False)
     departure_date = db.Column(db.DateTime, nullable = False)
-    tickets = db.relationship('Ticket', backref = 'flight', lazy = True)
+    status = db.Column(db.String(64), db.ForeignKey('status.status'))
+    tickets = db.relationship('Ticket', foreign_keys = 'Ticket.flight_num', backref = 'flight', lazy = True)
+    tickets = db.relationship('Ticket', foreign_keys = 'Ticket.airline_name', backref = 'flight', lazy = True)
+    __table_args__ = (
+        db.ForeignKeyConstraint(['airline_name','airplane_model','airplane_id'],['airline_stock.airline_name','airline_stock.model','airline_stock.unique_id'], name = 'fk_flight_name_model_id'),
+    )
+
+class Status(db.Model):
+    status = db.Column(db.String(64), primary_key = True)
 
 class Address(db.Model):
     email = db.Column(db.String(64), db.ForeignKey('customer.email'), primary_key = True)
@@ -205,8 +203,12 @@ class Phone_number(db.Model):
     number = db.Column(db.String(64), primary_key = True)
 
 class Ticket(db.Model):
-    ticket_id = db.Column(db.String(64), primary_key = True)
+    ticket_id = db.Column(db.Integer, primary_key = True)
     customer_email = db.Column(db.String(64), db.ForeignKey('customer.email'), nullable = False)
-    airline_name = db.Column(db.String(64), db.ForeignKey('airline.name'), nullable = False)
-    flight_num = db.Column(db.String(64), db.ForeignKey('flight.flight_num'), nullable = False)
+    airline_name = db.Column(db.String(64), primary_key = True, nullable = False)
+    flight_num = db.Column(db.String(64), primary_key = True, nullable = False)
+    date_purchased = db.Column(db.DateTime, nullable = True)
     booking_agent_ID = db.Column(db.String(64), db.ForeignKey('booking_agent.booking_agent_id'), nullable = True)
+    __table_args__ = (
+        db.ForeignKeyConstraint(['flight_num','airline_name'],['flight.flight_num','flight.airline_name'], name = 'fk_ticket_name_num'),
+    )

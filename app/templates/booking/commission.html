@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - departure{% endblock %}
+{% block head %}
+{{ super() }}
+<meta charset='utf-8'>
+<title>Book</title>
+<style type="text/css">
+
+</style>
+{% endblock %}
+{% block page_content %}
+
+<div class = "container">
+  <div class = "row">
+    <div class = "col-md-6">
+      <h3>Track My Commission</h3>
+      {{wtf.quick_form(form)}}
+    </div>
+  </div>
+  <div class = "row">
+    <div class = "col-md-8">
+      <h3>Personal Stats in Date Range<h3>
+      <h4>Total Commission: {{total_commission}}</h4>
+      <h4>Average Commission: {{avg_commission}}</h4>
+      <h4>Tickets Sold: {{total_tickets_sold}}</h4>
+    </div>
+  </div>
+</div>
+{% endblock %}

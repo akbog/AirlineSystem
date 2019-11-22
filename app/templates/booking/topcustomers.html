@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - departure{% endblock %}
+{% block head %}
+{{ super() }}
+<meta charset='utf-8'>
+<title>Book</title>
+<style type="text/css">
+
+  #chart-1, #chart-2 {
+    height: 40vh;
+  }
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+<script src="https://momentjs.com/downloads/moment.js"></script>
+{% endblock %}
+{% block page_content %}
+
+<div class = "container">
+  <div class = "row">
+    <div class = "col-md-6">
+      <h3>Top Customers</h3>
+      {{wtf.quick_form(form)}}
+    </div>
+  </div>
+  <div class = "row">
+    <div class = "col-md-6" id = "chart-1">
+      <h4> Top {{form.top.data}} Customers by Tickets Purchased</h4>
+    </div>
+    <div class = "col-md-6" id = "chart-2">
+      <h4> Top {{form.top.data}} Customers by Commission</h4>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  var padding = 50
+  var purchased = []
+  var commission = []
+
+  {% for cust in top_purchased %}
+      var temp_data = {}
+      temp_data["email"] =  "{{top_purchased[loop.index0][0]}}"
+      temp_data["name"] =  "{{top_purchased[loop.index0][1]}}" + "{{top_purchased[loop.index0][2]}}"
+      temp_data["count"] =  parseFloat("{{top_purchased[loop.index0][3]}}")
+      purchased.push(temp_data)
+  {% endfor %}
+
+  console.log(purchased)
+
+  {% for cust in top_commission %}
+      var temp_data = {}
+      temp_data["email"] =  "{{top_commission[loop.index0][0]}}"
+      temp_data["name"] =  "{{top_commission[loop.index0][1]}}" + "{{top_commission[loop.index0][2]}}"
+      temp_data["commission"] =  parseFloat("{{top_commission[loop.index0][3]}}")
+      commission.push(temp_data)
+  {% endfor %}
+
+  var width = document.getElementById("chart-1").clientWidth
+  var height = document.getElementById("chart-1").clientHeight
+
+  console.log(width, height)
+
+  var ticket_counts = purchased.map(function(data){
+    return data.count
+  })
+
+// // .toLocaleDateString(options)
+//   data.sort((a,b) => a.Month - b.Month)
+//
+//   // .toLocaleDateString(options)
+//
+//   data.forEach(function(d){
+//     d.Month = d.Month.format("MMM YYYY")
+//   })
+
+  var max_purchased = Math.round(Math.max(...ticket_counts))
+
+  var max_commission = Math.round(Math.max(...ticket_counts)/100) * 100
+
+  var xScale = d3.scaleBand()
+                  .domain(purchased.map(function(d) {return d.email}))
+                  .padding(0.1)
+                  .range([padding, width - padding])
+
+
+  var yScale = d3.scaleLinear()
+                  .domain([0, max_purchased])
+                  .range([height - padding, padding])
+
+  var svg = d3.select("#chart-1")
+              .append("svg")
+              .attr("width", width)
+              .attr("height", height)
+              .append("g")
+              .attr("transform",
+                  "translate(" + padding + "," +0 + ")");
+
+  svg.selectAll('.bar')
+      .data(purchased)
+      .enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) {
+        return xScale(d.email)
+      })
+      .attr("width", xScale.bandwidth())
+      .attr("y", function(d) {
+        console.log(d.count)
+        return yScale(d.count)
+      })
+      .attr("height", function(d) {
+        return (height - padding) - yScale(d.count)
+      })
+      .style("fill", "rgb(100,100,300)")
+
+  svg.append("g")
+      .attr("transform", "translate(0," + (height - padding) + ")")
+      .call(d3.axisBottom(xScale))
+
+    svg.append("g")
+        .call(d3.axisLeft(yScale))
+//Next will be writing the scale
+
+//Second Chart
+
+var commission_array = commission.map(function(data){
+  return data.commission
+})
+
+var max_commission = Math.ceil(Math.max(...commission_array)/100) * 100
+console.log(max_commission)
+
+var xScaleCom = d3.scaleBand()
+                .domain(commission.map(function(d) {return d.email}))
+                .padding(0.1)
+                .range([padding, width - padding])
+
+
+var yScaleCom = d3.scaleLinear()
+                .domain([0, max_commission])
+                .range([height - padding, padding])
+
+var svgcom = d3.select("#chart-2")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform",
+                "translate(" + padding + "," +0 + ")");
+
+svgcom.selectAll('.bar')
+    .data(commission)
+    .enter()
+    .append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d) {
+      return xScaleCom(d.email)
+    })
+    .attr("width", xScale.bandwidth())
+    .attr("y", function(d) {
+      return yScaleCom(d.commission)
+    })
+    .attr("height", function(d) {
+      return (height - padding) - yScaleCom(d.commission)
+    })
+    .style("fill", "rgb(100,100,300)")
+
+svgcom.append("g")
+    .attr("transform", "translate(0," + (height - padding) + ")")
+    .call(d3.axisBottom(xScaleCom))
+
+svgcom.append("g")
+    .call(d3.axisLeft(yScaleCom))
+
+</script>
+{% endblock %}

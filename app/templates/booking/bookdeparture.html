@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - departure{% endblock %}
+{% block head %}
+{{ super() }}
+<meta charset='utf-8'>
+<title>Book</title>
+<style type="text/css">
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+{% block page_content %}
+
+<div class = "container">
+  <div class = "formwrapper">
+    <h2>Book Your Departure Flight</h2>
+    <form method = "POST" action = "{{url_for('main.bookdeparture')}}">
+      <div class = "row">
+        <div class = "col-md-5">
+          <div class="form-field">{{ form.departure_airport.label }} {{ form.departure_airport }}
+            {% if form.departure_airport.errors %}
+              <ul class="errors">
+          	{% for error in form.departure_airport.errors %}
+          		<li>{{ error }}</li>
+            {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+          <div class="form-field">{{ form.departure_date.label }} {{ form.departure_date }}
+            {% if form.departure_date.errors %}
+              <ul class="errors">
+          	{% for error in form.departure_date.errors %}
+          		<li>{{ error }}</li>
+            {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        </div>
+        <div class = "col-md-5">
+          <div class="form-field">{{ form.arrival_airport.label }} {{ form.arrival_airport }}
+            {% if form.arrival_airport.errors %}
+              <ul class="errors">
+          	{% for error in form.arrival_airport.errors %}
+          		<li>{{ error }}</li>
+            {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+          <div class="form-field">{{ form.return_date.label }} {{ form.return_date }}
+            {% if form.return_date.errors %}
+              <ul class="errors">
+          	{% for error in form.return_date.errors %}
+          		<li>{{ error }}</li>
+            {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+          {{ form.submit }}
+          {{ form.hidden_tag() }}
+        </div>
+      </div>
+      <div class = "row">
+        <div class = "col-md-10">
+
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class = "row">
+    <div class = "col-md-12">
+      <table class = "table">
+        <thead>
+          <tr>
+            <th scope="col">Airline</th>
+            <th scope="col">Departure Time</th>
+            <th scope="col">Arrival Time</th>
+            <th scope="col">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for flight in dep_flights %}
+            <tr class="clickable-row" data-href="{{ url_for('booking.bookflight', depart_id= flight.flight_num, airline=flight.airline_name)}}">
+              <td>{{flight.airline_name}}</td>
+              <td>{{flight.departure_date}}</td>
+              <td>{{flight.arrival_date}}</td>
+              <td>{{flight.price}}</td>
+            </tr>
+          {% endfor %}
+        <tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+      window.location = $(this).data("href")
+    })
+  })
+
+</script>
+{% endblock %}
+
+<!-- //this.selection (pull each attribute and send it)
+//using jquery -->

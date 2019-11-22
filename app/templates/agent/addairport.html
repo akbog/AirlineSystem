@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - add airports{% endblock %}
+{% block head %}
+{{ super() }}
+<meta charset='utf-8'>
+<title>Book</title>
+<style type="text/css">
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+{% block page_content %}
+<div class = "container">
+  <div class = "row">
+    <div class = "col-md-6">
+      <h3>Add Airports</h3>
+      {{wtf.quick_form(form)}}
+      {{ form.hidden_tag() }}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

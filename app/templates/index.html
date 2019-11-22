@@ -12,27 +12,4 @@
 <div class="col-md-6">
   {{ wtf.quick_form(explore_form) }}
 </div>
-<div class = "col-md-2">
-    or
-</div>
-<div class="col-md-4">
-  {% if current_user.is_authenticated %}
-    Empty Text
-  {% else %}
-    Login
-    <br>
-    {{ wtf.quick_form(login_form) }}
-    <br>
-    <p>
-      Not an Agent?
-        <a href="{{ url_for('auth.customerlogin') }}">
-          <br> Login as a Customer.
-        </a>
-        <a href="{{ url_for('auth.partnerlogin') }}">
-          <br> Login as a Partner.
-        </a>
-    </p>
-  {% endif %}
-  <br>
-</div>
 {% endblock %}

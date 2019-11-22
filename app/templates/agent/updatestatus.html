@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}tripmetic - departure{% endblock %}
+{% block head %}
+{{ super() }}
+<meta charset='utf-8'>
+<title>Update</title>
+<style type="text/css">
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+{% block page_content %}
+<div class = "container">
+  <div class = "col-md-12">
+    <table class = "table">
+      <thead>
+        <h4> Flight to Update: </h4>
+        <tr>
+          <th scope="col">Airline</th>
+          <th scope="col">Flight #</th>
+          <th scope="col">Departure Time</th>
+          <th scope="col">Destination</th>
+          <th scope="col">Status</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <form method = "POST" action = "{{url_for('agent.updatestatus', flight_id=flight.flight_num)}}">
+          <tr>
+            <td>{{flight.airline_name}}</td>
+            <td>{{flight.flight_num}}</td>
+            <td>{{(flight.departure_date).strftime('%H:%M') }}</td>
+            <td>{{flight.arrival}}</td>
+            <td>
+              <div class="form-field"> {{ form.status }}
+                {% if form.status.errors %}
+                  <ul class="errors">
+              	{% for error in form.status.errors %}
+              		<li>{{ error }}</li>
+                {% endfor %}
+                  </ul>
+                {% endif %}
+              </div>
+            </td>
+            <td>
+              {{ form.submit }}
+              {{ form.hidden_tag() }}
+            </td>
+          </tr>
+        </form>
+      <tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
